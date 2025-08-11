@@ -1,0 +1,42 @@
+/* TailwindCSS is loaded via CDN, so only custom styles go here */
+.sidebar {
+    transition: all 0.3s ease;
+}
+.sidebar.collapsed {
+    width: 70px;
+}
+.sidebar.collapsed .nav-text {
+    display: none;
+}
+.sidebar.collapsed .logo-text {
+    display: none;
+}
+.main-content {
+    transition: all 0.3s ease;
+}
+.active-nav {
+    background-color: #3b82f6;
+    color: white !important;
+}
+.active-nav i {
+    color: white !important;
+}
+.chart-container {
+    height: 300px;
+}
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        z-index: 40;
+        height: 100vh;
+        left: 0;
+        top: 0;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+    }
+    .main-content {
+        margin-left: 0 !important;
+    }
+    .sidebar.collapsed {
+        left: -100%;
+    }
+}
