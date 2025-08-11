@@ -208,32 +208,56 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Sidebar ---
     const sidebar = document.querySelector('.sidebar');
     const toggleSidebarBtn = document.getElementById('toggleSidebar');
+    const closeSidebarBtn = document.getElementById('closeSidebar');
     const mainContent = document.querySelector('.main-content');
     const navItems = document.querySelectorAll('.nav-item');
     const moduleContents = document.querySelectorAll('.module-content');
     const moduleTitle = document.getElementById('module-title');
 
+    // Mostrar/ocultar sidebar
     const toggleSidebar = () => {
         sidebar.classList.toggle('collapsed');
+        // Si se muestra, poner z-50 para que esté sobre el contenido
+        if (!sidebar.classList.contains('collapsed')) {
+            sidebar.classList.add('z-50');
+        } else {
+            sidebar.classList.remove('z-50');
+        }
     };
-    toggleSidebarBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleSidebar();
-    });
+    if (toggleSidebarBtn) {
+        toggleSidebarBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
+    if (closeSidebarBtn) {
+        closeSidebarBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.add('collapsed');
+            sidebar.classList.remove('z-50');
+        });
+    }
+    // Cerrar sidebar tocando fuera en móvil
+    if (mainContent) {
+        mainContent.addEventListener('click', () => {
+            if (window.innerWidth <= 768 && !sidebar.classList.contains('collapsed')) {
+                sidebar.classList.add('collapsed');
+                sidebar.classList.remove('z-50');
+            }
+        });
+    }
+    // Estado inicial responsive
     const setInitialSidebarState = () => {
         if (window.innerWidth <= 768) {
             sidebar.classList.add('collapsed');
+            sidebar.classList.remove('z-50');
         } else {
             sidebar.classList.remove('collapsed');
+            sidebar.classList.remove('z-50');
         }
     };
     setInitialSidebarState();
     window.addEventListener('resize', setInitialSidebarState);
-    mainContent.addEventListener('click', () => {
-        if (window.innerWidth <= 768 && !sidebar.classList.contains('collapsed')) {
-            sidebar.classList.add('collapsed');
-        }
-    });
 
     // --- Navegación entre módulos ---
     const setActiveModule = (moduleName) => {
