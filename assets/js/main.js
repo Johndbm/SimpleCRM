@@ -1,187 +1,31 @@
-// --- Simulación de base de datos usando localStorage ---
-const SAMPLE_CLIENTS = [
-    {
-        id: 1,
-        name: "Laura Pérez",
-        email: "laura@ejemplo.com",
-        phone: "+34 123 456 789",
-        company: "TechSolutions",
-        address: "Calle Principal 123, Madrid",
-        status: "active",
-        source: "website",
-        registrationDate: "2023-03-10",
-        notes: "Cliente importante con varios proyectos en curso.",
-        avatar: "https://randomuser.me/api/portraits/women/12.jpg"
-    },
-    {
-        id: 2,
-        name: "Juan Gómez",
-        email: "juan@ejemplo.com",
-        phone: "+34 987 654 321",
-        company: "Consulting Corp",
-        address: "Avenida Central 456, Barcelona",
-        status: "active",
-        source: "referral",
-        registrationDate: "2023-02-15",
-        notes: "Interesado en servicios de consultoría estratégica.",
-        avatar: "https://randomuser.me/api/portraits/men/42.jpg"
-    },
-    {
-        id: 3,
-        name: "Ana Martínez",
-        email: "ana@ejemplo.com",
-        phone: "+34 555 123 456",
-        company: "Business Advisors",
-        address: "Plaza Mayor 789, Valencia",
-        status: "potential",
-        source: "event",
-        registrationDate: "2023-04-05",
-        notes: "Contactada en el evento de negocios. Seguimiento necesario.",
-        avatar: "https://randomuser.me/api/portraits/women/32.jpg"
-    },
-    {
-        id: 4,
-        name: "Carlos Rodríguez",
-        email: "carlos@ejemplo.com",
-        phone: "+34 111 222 333",
-        company: "Digital Solutions",
-        address: "Calle Tecnológica 101, Sevilla",
-        status: "active",
-        source: "social",
-        registrationDate: "2023-01-20",
-        notes: "Cliente satisfecho con el último proyecto.",
-        avatar: "https://randomuser.me/api/portraits/men/22.jpg"
-    },
-    {
-        id: 5,
-        name: "María González",
-        email: "maria@ejemplo.com",
-        phone: "+34 444 555 666",
-        company: "Innovate Corp",
-        address: "Paseo de la Innovación 202, Bilbao",
-        status: "inactive",
-        source: "other",
-        registrationDate: "2022-11-30",
-        notes: "No ha respondido a los últimos contactos.",
-        avatar: "https://randomuser.me/api/portraits/women/44.jpg"
-    }
-];
-
-const SAMPLE_INTERACTIONS = [
-    {
-        id: 1,
-        clientId: 1,
-        type: "meeting",
-        date: "2023-06-15",
-        time: "10:30",
-        subject: "Reunión para discutir el proyecto de consultoría",
-        description: "Reunión presencial para revisar los requisitos del nuevo proyecto de consultoría.",
-        outcome: "Cliente interesado en avanzar. Enviar propuesta formal.",
-        clientName: "Laura Pérez",
-        clientCompany: "TechSolutions"
-    },
-    {
-        id: 2,
-        clientId: 2,
-        type: "call",
-        date: "2023-06-18",
-        time: "15:00",
-        subject: "Llamada de seguimiento",
-        description: "Llamada telefónica para dar seguimiento a la propuesta enviada.",
-        outcome: "Cliente solicitó más información sobre el alcance.",
-        clientName: "Juan Gómez",
-        clientCompany: "Consulting Corp"
-    },
-    {
-        id: 3,
-        clientId: 3,
-        type: "email",
-        date: "2023-06-20",
-        time: "09:00",
-        subject: "Envío de presentación de servicios",
-        description: "Se envió un correo con la presentación de servicios de la empresa.",
-        outcome: "Cliente agradeció la información y quedó en responder.",
-        clientName: "Ana Martínez",
-        clientCompany: "Business Advisors"
-    },
-    {
-        id: 4,
-        clientId: 4,
-        type: "note",
-        date: "2023-06-22",
-        time: "",
-        subject: "Nota interna",
-        description: "El cliente está satisfecho con el último proyecto, posible oportunidad de upselling.",
-        outcome: "Pendiente preparar propuesta de nuevos servicios.",
-        clientName: "Carlos Rodríguez",
-        clientCompany: "Digital Solutions"
-    },
-    {
-        id: 5,
-        clientId: 5,
-        type: "meeting",
-        date: "2023-06-25",
-        time: "11:00",
-        subject: "Reunión de reactivación",
-        description: "Reunión para intentar reactivar al cliente inactivo.",
-        outcome: "Cliente no asistió a la reunión.",
-        clientName: "María González",
-        clientCompany: "Innovate Corp"
-    }
-];
-
-// Utilidades para localStorage
-function getDB(key, fallback) {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : fallback;
-}
-function setDB(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
-}
-
-// Inicializar datos de muestra si no existen
-if (!localStorage.getItem('crm_clients')) {
-    setDB('crm_clients', SAMPLE_CLIENTS);
-}
-if (!localStorage.getItem('crm_interactions')) {
-    setDB('crm_interactions', SAMPLE_INTERACTIONS);
-}
-
-// Acceso principal a los datos
-function getClients() {
-    return getDB('crm_clients', []);
-}
-function setClients(clients) {
-    setDB('crm_clients', clients);
-}
-function getInteractions() {
-    return getDB('crm_interactions', []);
-}
-function setInteractions(interactions) {
-    setDB('crm_interactions', interactions);
-}
+// Importar módulos
+import { getClients, setClients, getInteractions, setInteractions } from './db.js';
+import { openModal, closeModal, setupModalEvents } from './modals.js';
+import { setupInteraccionesModule } from './interacciones.js';
+import { setupProyectosModule } from './proyectos.js';
+import { setupOportunidadesModule } from './oportunidades.js';
 
 // --- Lógica principal del CRM ---
 document.addEventListener('DOMContentLoaded', () => {
     // --- Guardar Cliente (formulario) ---
+    // Modular: lógica de formulario de cliente
     const clientForm = document.getElementById('client-form');
     if (clientForm) {
         clientForm.addEventListener('submit', function (e) {
             e.preventDefault();
-            // Obtener valores del formulario
             const name = document.getElementById('client-name').value.trim();
             const company = document.getElementById('client-company').value.trim();
             const email = document.getElementById('client-email').value.trim();
             const phone = document.getElementById('client-phone').value.trim();
             const address = document.getElementById('client-address').value.trim();
             const status = document.getElementById('client-status').value;
-            const source = document.getElementById('client-source').value;
+            // source y notes pueden ser opcionales
+            const source = document.getElementById('client-source')?.value || '';
             const notes = document.getElementById('client-notes').value.trim();
             if (!name || !email || !status) {
                 showToast('Por favor, complete los campos obligatorios.');
                 return;
             }
-            // Crear nuevo cliente
             const clients = getClients();
             const newClient = {
                 id: clients.length ? Math.max(...clients.map(c => c.id)) + 1 : 1,
@@ -200,12 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
             setClients(clients);
             renderClientesTable(clients);
             showToast('Cliente guardado exitosamente.');
-            // Cerrar modal y resetear formulario
-            document.getElementById('add-client-modal').classList.add('hidden');
+            closeModal('add-client-modal');
             clientForm.reset();
         });
     }
-    // --- Sidebar ---
+    // --- Sidebar Mejorada ---
     const sidebar = document.querySelector('.sidebar');
     const toggleSidebarBtn = document.getElementById('toggleSidebar');
     const closeSidebarBtn = document.getElementById('closeSidebar');
@@ -214,35 +57,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const moduleContents = document.querySelectorAll('.module-content');
     const moduleTitle = document.getElementById('module-title');
 
-    // Mostrar/ocultar sidebar
-    const toggleSidebar = () => {
-        sidebar.classList.toggle('collapsed');
-        // Si se muestra, poner z-50 para que esté sobre el contenido
-        if (!sidebar.classList.contains('collapsed')) {
-            sidebar.classList.add('z-50');
-        } else {
-            sidebar.classList.remove('z-50');
+    // Fondo overlay para sidebar en móvil
+    let sidebarOverlay = document.getElementById('sidebar-overlay');
+    if (!sidebarOverlay) {
+        sidebarOverlay = document.createElement('div');
+        sidebarOverlay.id = 'sidebar-overlay';
+        sidebarOverlay.className = 'fixed inset-0 bg-black bg-opacity-40 z-40 hidden md:hidden';
+        document.body.appendChild(sidebarOverlay);
+    }
+
+    // Mostrar/ocultar sidebar y overlay
+    const openSidebar = () => {
+        sidebar.classList.remove('collapsed');
+        sidebar.classList.add('z-50');
+        if (window.innerWidth <= 768) {
+            sidebarOverlay.classList.remove('hidden');
         }
+    };
+    const closeSidebar = () => {
+        sidebar.classList.add('collapsed');
+        sidebar.classList.remove('z-50');
+        sidebarOverlay.classList.add('hidden');
     };
     if (toggleSidebarBtn) {
         toggleSidebarBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            toggleSidebar();
+            openSidebar();
         });
     }
     if (closeSidebarBtn) {
         closeSidebarBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            sidebar.classList.add('collapsed');
-            sidebar.classList.remove('z-50');
+            closeSidebar();
         });
     }
-    // Cerrar sidebar tocando fuera en móvil
+    sidebarOverlay.addEventListener('click', closeSidebar);
+    // Cerrar sidebar tocando fuera en móvil (por overlay)
     if (mainContent) {
         mainContent.addEventListener('click', () => {
             if (window.innerWidth <= 768 && !sidebar.classList.contains('collapsed')) {
-                sidebar.classList.add('collapsed');
-                sidebar.classList.remove('z-50');
+                closeSidebar();
             }
         });
     }
@@ -251,9 +105,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.innerWidth <= 768) {
             sidebar.classList.add('collapsed');
             sidebar.classList.remove('z-50');
+            sidebarOverlay.classList.add('hidden');
         } else {
             sidebar.classList.remove('collapsed');
             sidebar.classList.remove('z-50');
+            sidebarOverlay.classList.add('hidden');
         }
     };
     setInitialSidebarState();
@@ -269,8 +125,12 @@ document.addEventListener('DOMContentLoaded', () => {
         moduleContents.forEach(content => {
             content.classList.toggle('hidden', content.id !== `${moduleName}-module`);
         });
+        // Inicializar lógica específica de cada módulo
+        if (moduleName === 'interacciones') setupInteraccionesModule();
+        if (moduleName === 'proyectos') setupProyectosModule();
+        if (moduleName === 'oportunidades') setupOportunidadesModule();
         if (window.innerWidth <= 768) {
-            sidebar.classList.add('collapsed');
+            closeSidebar();
         }
     };
     navItems.forEach(item => {
@@ -281,88 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Modal Nuevo Cliente ---
-    const addClientModal = document.getElementById('add-client-modal');
-    const openClientBtns = [
-        ...document.querySelectorAll('#add-client-btn'),
-        ...document.querySelectorAll('.bg-blue-500 i.fa-plus')
-    ];
-    const closeClientModalBtn = document.getElementById('close-client-modal');
-    const cancelClientBtn = document.getElementById('cancel-client');
-    openClientBtns.forEach(btn => {
-        btn.closest('button')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            addClientModal.classList.remove('hidden');
-        });
-    });
-    [closeClientModalBtn, cancelClientBtn].forEach(btn => {
-        btn?.addEventListener('click', () => {
-            addClientModal.classList.add('hidden');
-        });
-    });
-    addClientModal.addEventListener('click', (e) => {
-        if (e.target === addClientModal) addClientModal.classList.add('hidden');
-    });
+    // Modular: eventos de modal de cliente
+    setupModalEvents('add-client-btn', 'add-client-modal', 'close-client-modal', 'cancel-client');
 
-    // --- Modal Notificaciones ---
-    let notificationModal = document.getElementById('notification-modal');
-    if (!notificationModal) {
-        notificationModal = document.createElement('div');
-        notificationModal.id = 'notification-modal';
-        notificationModal.className = 'fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden';
-        notificationModal.innerHTML = `
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
-                <div class="flex justify-between items-center p-4 border-b">
-                    <h3 class="text-lg font-bold">Notificaciones</h3>
-                    <button id="close-notification-modal" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
-                </div>
-                <ul class="divide-y divide-gray-200 max-h-80 overflow-y-auto" id="notification-list">
-                    <li class="p-4 text-gray-700">No hay notificaciones nuevas.</li>
-                </ul>
-            </div>
-        `;
-        document.body.appendChild(notificationModal);
-    }
-    function openNotificationModal() {
-        notificationModal.classList.remove('hidden');
-    }
-    function closeNotificationModal() {
-        notificationModal.classList.add('hidden');
-    }
-    document.getElementById('close-notification-modal')?.addEventListener('click', closeNotificationModal);
-    notificationModal.addEventListener('click', (e) => {
-        if (e.target === notificationModal) closeNotificationModal();
-    });
-
-    // --- Modal Configuración ---
-    let settingsModal = document.getElementById('settings-modal');
-    if (!settingsModal) {
-        settingsModal = document.createElement('div');
-        settingsModal.id = 'settings-modal';
-        settingsModal.className = 'fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden';
-        settingsModal.innerHTML = `
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
-                <div class="flex justify-between items-center p-4 border-b">
-                    <h3 class="text-lg font-bold">Configuración</h3>
-                    <button id="close-settings-modal" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button>
-                </div>
-                <div class="p-4 text-gray-700">
-                    <p>Opciones de configuración próximamente disponibles.</p>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(settingsModal);
-    }
-    function openSettingsModal() {
-        settingsModal.classList.remove('hidden');
-    }
-    function closeSettingsModal() {
-        settingsModal.classList.add('hidden');
-    }
-    document.getElementById('close-settings-modal')?.addEventListener('click', closeSettingsModal);
-    settingsModal.addEventListener('click', (e) => {
-        if (e.target === settingsModal) closeSettingsModal();
-    });
+    // Modular: eventos de modales de notificaciones y configuración
+    setupModalEvents('notification-btn', 'notification-modal', 'close-notification-modal');
+    setupModalEvents('settings-btn', 'settings-modal', 'close-settings-modal');
 
 // (Removed duplicate block)
 

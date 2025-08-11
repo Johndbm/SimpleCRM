@@ -6,10 +6,10 @@
     width: 70px;
 }
 .sidebar.collapsed .nav-text {
-    display: none;
+    display: none !important;
 }
 .sidebar.collapsed .logo-text {
-    display: none;
+    display: none !important;
 }
 .main-content {
     transition: all 0.3s ease;
@@ -27,11 +27,33 @@
 @media (max-width: 768px) {
     .sidebar {
         position: fixed;
-        z-index: 40;
+        z-index: 50;
         height: 100vh;
         left: 0;
         top: 0;
-        box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+        width: 80vw !important;
+        min-width: 220px;
+        max-width: 320px;
+        background: #1f2937;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+    .sidebar .space-y-2 {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+    }
+    .sidebar .nav-item {
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+        text-align: left;
+        padding-left: 1rem;
     }
     .main-content {
         margin-left: 0 !important;
